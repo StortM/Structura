@@ -1,0 +1,51 @@
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool
+*.out
+
+# Go workspace file
+go.work
+
+# Dependency directories (remove the comment below if you want to check in your vendor directory)
+vendor/
+
+# Compiled Object files, Static and Dynamic libs
+*.o
+*.a
+
+# Debug files
+__debug_bin
+__debug_bin.*
+
+# IDE specific files
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+
+# Project specific
+/eer-diagram-generator
+/bin/
+/dist/
+/tmp/
+
+# Local development env files
+.env
+.env.local
+.env.development.local
+
+# Log files
+*.log
+/logs/
+
+# Temporary files
+/temp/
