@@ -4,7 +4,6 @@ package layout
 import (
 	"math"
 	"math/rand"
-	"time"
 
 	"github.com/StortM/Structura/internal/schema"
 )
@@ -32,8 +31,6 @@ func NewForceDirectedLayout() *ForceDirectedLayout {
 
 // ApplyLayout positions tables using a force-directed algorithm
 func (l *ForceDirectedLayout) ApplyLayout(s *schema.Schema) error {
-	// Initialize random positions
-	rand.Seed(time.Now().UnixNano())
 	for i := range s.Tables {
 		s.Tables[i].Position.X = rand.Float64() * l.CanvasWidth
 		s.Tables[i].Position.Y = rand.Float64() * l.CanvasHeight
@@ -44,7 +41,7 @@ func (l *ForceDirectedLayout) ApplyLayout(s *schema.Schema) error {
 	temperature := l.CanvasWidth / 10                                       // Initial temperature for simulated annealing
 
 	// Run the simulation for a number of iterations
-	for iteration := 0; iteration < l.Iterations; iteration++ {
+	for range l.Iterations {
 		// Calculate repulsive forces between all pairs of tables
 		forces := make([]schema.Position, len(s.Tables))
 
