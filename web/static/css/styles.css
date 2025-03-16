@@ -1,0 +1,116 @@
+/* web/static/css/styles.css */
+
+/* General styles */
+body {
+    background-color: #f5f5f5;
+}
+
+/* Diagram container */
+#diagram-container {
+    width: 100%;
+    height: 700px;
+    background-color: white;
+    border: 1px solid #dee2e6;
+    overflow: hidden;
+    position: relative;
+}
+
+svg#diagram {
+    cursor: grab;
+}
+
+svg#diagram:active {
+    cursor: grabbing;
+}
+
+/* Table styles */
+.table rect {
+    transition: stroke 0.2s ease;
+}
+
+.table:hover rect {
+    stroke: #0d6efd;
+    stroke-width: 2px;
+}
+
+/* Loading indicator */
+#loading {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 4px;
+    z-index: 1000;
+}
+
+/* Navbar customization */
+.navbar-brand {
+    font-weight: bold;
+    letter-spacing: 0.5px;
+}
+
+/* Form elements */
+textarea.form-control {
+    font-family: monospace;
+    font-size: 0.9em;
+}
+
+/* Card customization */
+.card {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    margin-bottom: 20px;
+}
+
+.card-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+}
+
+/* Button styles */
+.btn-primary {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+.btn-primary:hover {
+    background-color: #0b5ed7;
+    border-color: #0a58ca;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    border-color: #6c757d;
+}
+
+.btn-secondary:hover {
+    background-color: #5c636a;
+    border-color: #565e64;
+}
+
+/* Zoom controls */
+#zoomInBtn, #zoomOutBtn, #resetZoomBtn {
+    font-weight: bold;
+}
+
+/* Modal customization */
+.modal-header {
+    background-color: #f8f9fa;
+}
+
+.list-group-item:hover {
+    background-color: #f8f9fa;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .col-md-3, .col-md-9 {
+        padding: 0 10px;
+    }
+    
+    #diagram-container {
+        height: 500px;
+    }
+}

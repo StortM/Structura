@@ -1,0 +1,138 @@
+<!-- web/templates/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EER Diagram Generator</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/css/styles.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container-fluid">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="#">EER Diagram Generator</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="#" id="newDiagramBtn">New Diagram</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" id="loadDiagramBtn">Load Diagram</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <div class="row">
+            <!-- Left panel for input and controls -->
+            <div class="col-md-3">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title">Import Schema</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="importForm">
+                            <div class="mb-3">
+                                <label for="sqlInput" class="form-label">SQL Schema</label>
+                                <textarea class="form-control" id="sqlInput" rows="10" placeholder="Paste your CREATE TABLE statements here..."></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Import</button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title">Layout Options</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label">Layout Algorithm</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="layoutAlgorithm" id="forceLayout" value="force" checked>
+                                <label class="form-check-label" for="forceLayout">
+                                    Force-Directed Layout
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="layoutAlgorithm" id="gridLayout" value="grid">
+                                <label class="form-check-label" for="gridLayout">
+                                    Grid Layout
+                                </label>
+                            </div>
+                        </div>
+                        <button id="applyLayoutBtn" class="btn btn-secondary" disabled>Apply Layout</button>
+                    </div>
+                </div>
+
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title">Export Options</h5>
+                    </div>
+                    <div class="card-body">
+                        <button id="exportSVGBtn" class="btn btn-success" disabled>Export as SVG</button>
+                        <button id="exportPNGBtn" class="btn btn-success" disabled>Export as PNG</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right panel for diagram display -->
+            <div class="col-md-9">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">Diagram View</h5>
+                        <div>
+                            <button id="zoomInBtn" class="btn btn-sm btn-outline-secondary">
+                                <i class="bi bi-zoom-in"></i> +
+                            </button>
+                            <button id="zoomOutBtn" class="btn btn-sm btn-outline-secondary">
+                                <i class="bi bi-zoom-out"></i> -
+                            </button>
+                            <button id="resetZoomBtn" class="btn btn-sm btn-outline-secondary">
+                                <i class="bi bi-aspect-ratio"></i> Reset
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        <div id="diagram-container">
+                            <svg id="diagram" width="100%" height="700"></svg>
+                            <div id="loading" class="d-none">Loading...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div class="modal fade" id="loadDiagramModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Load Diagram</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="savedDiagramsList">
+                        <p>Loading saved diagrams...</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="/static/js/main.js"></script>
+</body>
+</html>
