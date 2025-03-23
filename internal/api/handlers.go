@@ -1,4 +1,3 @@
-// internal/api/handlers.go
 package api
 
 import (
@@ -7,22 +6,18 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/gorilla/mux"
 	"github.com/StortM/Structura/internal/layout"
 	"github.com/StortM/Structura/internal/schema"
+	"github.com/gorilla/mux"
 )
 
-// SchemaStore is a simple in-memory store for schemas (in a real app, you'd use a database)
 var SchemaStore = make(map[string]*schema.Schema)
 
-// GetHomePage handles the root route and serves the main HTML page
 func GetHomePage(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, "./web/templates/index.html")
 }
 
-// ImportSchema handles SQL schema import
 func ImportSchema(w http.ResponseWriter, r *http.Request) {
-	// Read request body
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		http.Error(w, "Error reading request body", http.StatusBadRequest)
@@ -54,17 +49,13 @@ func ImportSchema(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Store the schema
 	SchemaStore[newSchema.ID] = newSchema
 
-	// Return the schema
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(newSchema)
 }
 
-// ApplyLayout applies a layout algorithm to a schema
 func ApplyLayout(w http.ResponseWriter, r *http.Request) {
-	// Get schema ID from URL parameters
 	vars := mux.Vars(r)
 	schemaID := vars["id"]
 
@@ -84,14 +75,12 @@ func ApplyLayout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Find the schema
 	schema, exists := SchemaStore[schemaID]
 	if !exists {
 		http.Error(w, "Schema not found", http.StatusNotFound)
 		return
 	}
 
-	// Apply the selected layout algorithm
 	var layoutAlgo layout.LayoutAlgorithm
 	switch request.LayoutType {
 	case "force":
@@ -107,22 +96,17 @@ func ApplyLayout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Update timestamp
 	schema.UpdatedAt = time.Now().Unix()
 
-	// Return the updated schema
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(schema)
 }
 
-// UpdateTablePosition updates the position of a table
 func UpdateTablePosition(w http.ResponseWriter, r *http.Request) {
-	// Get schema ID and table ID from URL parameters
 	vars := mux.Vars(r)
 	schemaID := vars["id"]
 	tableID := vars["tableId"]
 
-	// Read request body
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		http.Error(w, "Error reading request body", http.StatusBadRequest)
@@ -130,7 +114,6 @@ func UpdateTablePosition(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	// Parse request as JSON
 	var request struct {
 		X float64 `json:"x"`
 		Y float64 `json:"y"`
@@ -140,7 +123,6 @@ func UpdateTablePosition(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Find the schema
 	schema, exists := SchemaStore[schemaID]
 	if !exists {
 		http.Error(w, "Schema not found", http.StatusNotFound)
@@ -163,37 +145,28 @@ func UpdateTablePosition(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Update relationship control points if necessary
-	// (In a real implementation, you would recalculate the relationship lines)
+	// TODO - recalculate relationship lines
 
-	// Update timestamp
 	schema.UpdatedAt = time.Now().Unix()
 
-	// Return success
 	w.WriteHeader(http.StatusOK)
 }
 
-// GetSchema returns a specific schema
 func GetSchema(w http.ResponseWriter, r *http.Request) {
-	// Get schema ID from URL parameters
 	vars := mux.Vars(r)
 	schemaID := vars["id"]
 
-	// Find the schema
 	schema, exists := SchemaStore[schemaID]
 	if !exists {
 		http.Error(w, "Schema not found", http.StatusNotFound)
 		return
 	}
 
-	// Return the schema
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(schema)
 }
 
-// ListSchemas returns all schemas
 func ListSchemas(w http.ResponseWriter, r *http.Request) {
-	// Extract basic info for each schema
 	schemas := make([]struct {
 		ID        string `json:"id"`
 		Name      string `json:"name"`
@@ -215,26 +188,20 @@ func ListSchemas(w http.ResponseWriter, r *http.Request) {
 		})
 	}
 
-	// Return the list
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(schemas)
 }
 
-// DeleteSchema deletes a schema
 func DeleteSchema(w http.ResponseWriter, r *http.Request) {
-	// Get schema ID from URL parameters
 	vars := mux.Vars(r)
 	schemaID := vars["id"]
 
-	// Check if schema exists
 	if _, exists := SchemaStore[schemaID]; !exists {
 		http.Error(w, "Schema not found", http.StatusNotFound)
 		return
 	}
 
-	// Delete the schema
 	delete(SchemaStore, schemaID)
 
-	// Return success
 	w.WriteHeader(http.StatusOK)
 }

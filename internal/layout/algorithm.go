@@ -1,4 +1,3 @@
-// internal/layout/algorithm.go
 package layout
 
 import (
@@ -8,19 +7,16 @@ import (
 	"github.com/StortM/Structura/internal/schema"
 )
 
-// LayoutAlgorithm interface for different layout strategies
 type LayoutAlgorithm interface {
 	ApplyLayout(schema *schema.Schema) error
 }
 
-// ForceDirectedLayout implements a simple force-directed layout algorithm
 type ForceDirectedLayout struct {
 	CanvasWidth  float64
 	CanvasHeight float64
 	Iterations   int
 }
 
-// NewForceDirectedLayout creates a new force-directed layout algorithm with default settings
 func NewForceDirectedLayout() *ForceDirectedLayout {
 	return &ForceDirectedLayout{
 		CanvasWidth:  1200,
@@ -29,18 +25,15 @@ func NewForceDirectedLayout() *ForceDirectedLayout {
 	}
 }
 
-// ApplyLayout positions tables using a force-directed algorithm
 func (l *ForceDirectedLayout) ApplyLayout(s *schema.Schema) error {
 	for i := range s.Tables {
 		s.Tables[i].Position.X = rand.Float64() * l.CanvasWidth
 		s.Tables[i].Position.Y = rand.Float64() * l.CanvasHeight
 	}
 
-	// Constants for the force-directed algorithm
 	k := math.Sqrt(l.CanvasWidth * l.CanvasHeight / float64(len(s.Tables))) // Optimal distance
-	temperature := l.CanvasWidth / 10                                       // Initial temperature for simulated annealing
+	temperature := l.CanvasWidth / 10
 
-	// Run the simulation for a number of iterations
 	for range l.Iterations {
 		// Calculate repulsive forces between all pairs of tables
 		forces := make([]schema.Position, len(s.Tables))
@@ -136,7 +129,6 @@ func (l *ForceDirectedLayout) ApplyLayout(s *schema.Schema) error {
 	return nil
 }
 
-// calculateRelationshipPoints adds control points to the relationships for better visual representation
 func (l *ForceDirectedLayout) calculateRelationshipPoints(s *schema.Schema) {
 	for i, rel := range s.Relationships {
 		// Find source and target tables
@@ -151,7 +143,6 @@ func (l *ForceDirectedLayout) calculateRelationshipPoints(s *schema.Schema) {
 			}
 		}
 
-		// Calculate start and end points (center of tables)
 		startX := sourceTable.Position.X + sourceTable.Size.Width/2
 		startY := sourceTable.Position.Y + sourceTable.Size.Height/2
 		endX := targetTable.Position.X + targetTable.Size.Width/2
@@ -165,14 +156,12 @@ func (l *ForceDirectedLayout) calculateRelationshipPoints(s *schema.Schema) {
 	}
 }
 
-// GridLayout implements a simple grid-based layout algorithm
 type GridLayout struct {
 	CanvasWidth  float64
 	CanvasHeight float64
 	Padding      float64
 }
 
-// NewGridLayout creates a new grid layout algorithm with default settings
 func NewGridLayout() *GridLayout {
 	return &GridLayout{
 		CanvasWidth:  1200,
@@ -181,7 +170,6 @@ func NewGridLayout() *GridLayout {
 	}
 }
 
-// ApplyLayout positions tables in a grid layout
 func (l *GridLayout) ApplyLayout(s *schema.Schema) error {
 	if len(s.Tables) == 0 {
 		return nil

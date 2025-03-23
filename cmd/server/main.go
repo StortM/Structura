@@ -12,18 +12,15 @@ import (
 func main() {
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "8080" // Default port
+		port = "8080"
 	}
 
-	// Initialize router with API handlers
 	router := api.NewRouter()
 
-	// Serve static files
 	staticDir := filepath.Join(".", "web", "static")
 	fs := http.FileServer(http.Dir(staticDir))
 	router.PathPrefix("/static/").Handler(http.StripPrefix("/static/", fs))
 
-	// Start the server
 	log.Printf("Server starting on port %s", port)
 	err := http.ListenAndServe(":"+port, router)
 	if err != nil {

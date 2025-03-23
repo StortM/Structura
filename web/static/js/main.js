@@ -1,20 +1,14 @@
-// web/static/js/main.js
-
-// Global variables
 let currentSchema = null;
 let svg = d3.select('#diagram');
 let zoom = d3.zoom()
     .scaleExtent([0.1, 4])
     .on('zoom', handleZoom);
 
-// Initialize the diagram
 function init() {
     console.log("Initializing application...");
     
-    // Set up zoom behavior
     svg.call(zoom);
     
-    // Set up event listeners
     const importForm = document.getElementById('importForm');
     console.log("Import form found:", importForm !== null);
     
@@ -36,39 +30,32 @@ function init() {
     document.getElementById('zoomOutBtn').addEventListener('click', zoomOut);
     document.getElementById('resetZoomBtn').addEventListener('click', resetZoom);
     
-    // Clear any existing diagrams
     clearDiagram();
     
     console.log("Initialization complete");
 }
 
-// Handle zoom events
 function handleZoom(e) {
     d3.select('#diagram g').attr('transform', e.transform);
 }
 
-// Zoom in
 function zoomIn() {
     svg.transition().call(zoom.scaleBy, 1.2);
 }
 
-// Zoom out
 function zoomOut() {
     svg.transition().call(zoom.scaleBy, 0.8);
 }
 
-// Reset zoom
 function resetZoom() {
     svg.transition().call(zoom.transform, d3.zoomIdentity);
 }
 
-// Clear the diagram
 function clearDiagram() {
     svg.selectAll('*').remove();
     svg.append('g');
 }
 
-// Handle schema import
 async function handleImport(e) {
     console.log("handleImport function called");
     e.preventDefault();
@@ -81,7 +68,6 @@ async function handleImport(e) {
         return;
     }
     
-    // Show loading indicator
     document.getElementById('loading').classList.remove('d-none');
     console.log("Loading indicator shown");
     
@@ -106,7 +92,6 @@ async function handleImport(e) {
         console.log("Schema parsed successfully:", currentSchema.id);
         renderDiagram(currentSchema);
         
-        // Enable buttons
         document.getElementById('applyLayoutBtn').disabled = false;
         document.getElementById('exportSVGBtn').disabled = false;
         document.getElementById('exportPNGBtn').disabled = false;
@@ -114,19 +99,16 @@ async function handleImport(e) {
         console.error('Error importing schema:', error);
         alert(`Error: ${error.message}`);
     } finally {
-        // Hide loading indicator
         document.getElementById('loading').classList.add('d-none');
         console.log("Loading indicator hidden");
     }
 }
 
-// Apply layout algorithm
 async function applyLayout() {
     if (!currentSchema) return;
     
     const layoutType = document.querySelector('input[name="layoutAlgorithm"]:checked').value;
     
-    // Show loading indicator
     document.getElementById('loading').classList.remove('d-none');
     
     try {
@@ -149,12 +131,10 @@ async function applyLayout() {
         console.error('Error applying layout:', error);
         alert(`Error: ${error.message}`);
     } finally {
-        // Hide loading indicator
         document.getElementById('loading').classList.add('d-none');
     }
 }
 
-// Show the load diagram modal
 async function showLoadDiagramModal() {
     const modal = new bootstrap.Modal(document.getElementById('loadDiagramModal'));
     
@@ -186,7 +166,6 @@ async function showLoadDiagramModal() {
             html += '</ul>';
             list.innerHTML = html;
             
-            // Add event listeners to load buttons
             document.querySelectorAll('.load-schema-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
                     loadSchema(btn.dataset.id);
@@ -206,9 +185,7 @@ async function showLoadDiagramModal() {
     modal.show();
 }
 
-// Load a saved schema
 async function loadSchema(id) {
-    // Show loading indicator
     document.getElementById('loading').classList.remove('d-none');
     
     try {
@@ -219,8 +196,7 @@ async function loadSchema(id) {
         
         currentSchema = await response.json();
         renderDiagram(currentSchema);
-        
-        // Enable buttons
+
         document.getElementById('applyLayoutBtn').disabled = false;
         document.getElementById('exportSVGBtn').disabled = false;
         document.getElementById('exportPNGBtn').disabled = false;
@@ -228,27 +204,21 @@ async function loadSchema(id) {
         console.error('Error loading schema:', error);
         alert(`Error: ${error.message}`);
     } finally {
-        // Hide loading indicator
         document.getElementById('loading').classList.add('d-none');
     }
 }
 
-// Render the diagram
 function renderDiagram(schema) {
-    // Clear the current diagram
     clearDiagram();
     
     const g = svg.select('g');
     
-    // Draw relationships first (so they appear behind tables)
     schema.relationships.forEach(rel => {
-        // Find source and target tables
         const sourceTable = schema.tables.find(t => t.id === rel.sourceTable);
         const targetTable = schema.tables.find(t => t.id === rel.targetTable);
         
         if (!sourceTable || !targetTable) return;
         
-        // Draw the relationship line
         const line = d3.line()
             .x(d => d.x)
             .y(d => d.y)
@@ -262,7 +232,6 @@ function renderDiagram(schema) {
             .attr('marker-end', 'url(#arrowhead)');
     });
     
-    // Create a marker for the arrowhead
     g.append('defs').append('marker')
         .attr('id', 'arrowhead')
         .attr('viewBox', '0 -5 10 10')
@@ -275,7 +244,6 @@ function renderDiagram(schema) {
         .attr('d', 'M0,-5L10,0L0,5')
         .attr('fill', '#999');
     
-    // Draw tables
     const tables = g.selectAll('.table')
         .data(schema.tables)
         .enter()
@@ -284,20 +252,16 @@ function renderDiagram(schema) {
         .attr('transform', d => `translate(${d.position.x}, ${d.position.y})`)
         .call(d3.drag()
             .on('drag', function(event, d) {
-                // Update position visually
                 d.position.x += event.dx;
                 d.position.y += event.dy;
                 d3.select(this).attr('transform', `translate(${d.position.x}, ${d.position.y})`);
                 
-                // Update relationship lines
                 updateRelationshipLines(schema, d.id);
                 
-                // Save position to server (debounced)
                 debounce(saveTablePosition(d.id, d.position.x, d.position.y), 500);
             })
         );
     
-    // Draw table rectangles
     tables.append('rect')
         .attr('width', d => d.size.width)
         .attr('height', d => d.size.height)
@@ -306,7 +270,6 @@ function renderDiagram(schema) {
         .attr('rx', 4)
         .attr('ry', 4);
     
-    // Draw table headers
     tables.append('rect')
         .attr('width', d => d.size.width)
         .attr('height', 30)
@@ -314,7 +277,6 @@ function renderDiagram(schema) {
         .attr('rx', 4)
         .attr('ry', 4);
     
-    // Draw table names
     tables.append('text')
         .attr('x', d => d.size.width / 2)
         .attr('y', 20)
@@ -323,16 +285,13 @@ function renderDiagram(schema) {
         .attr('font-weight', 'bold')
         .text(d => d.name);
     
-    // Draw table columns
     tables.each(function(d) {
         const table = d3.select(this);
         
-        // For each column
         for (let i = 0; i < d.columns.length; i++) {
             const column = d.columns[i];
             const y = 30 + i * 25 + 15;
             
-            // Draw row background
             table.append('rect')
                 .attr('x', 0)
                 .attr('y', 30 + i * 25)
@@ -341,10 +300,8 @@ function renderDiagram(schema) {
                 .attr('fill', i % 2 === 0 ? '#f8f9fa' : 'white')
                 .attr('opacity', 0.5);
             
-            // Set initial position for text
             let xPos = 10;
             
-            // Add primary key icon if needed
             if (column.isPrimaryKey) {
                 table.append('text')
                     .attr('x', xPos)
@@ -355,7 +312,6 @@ function renderDiagram(schema) {
                 xPos = 30;
             }
             
-            // Add foreign key icon if needed
             if (column.isForeignKey) {
                 table.append('text')
                     .attr('x', xPos)
@@ -366,7 +322,6 @@ function renderDiagram(schema) {
                 xPos = column.isPrimaryKey ? 50 : 30;
             }
             
-            // Draw column name
             table.append('text')
                 .attr('x', xPos)
                 .attr('y', y)
@@ -374,7 +329,6 @@ function renderDiagram(schema) {
                 .attr('font-size', '12px')
                 .text(column.name);
             
-            // Draw column type
             table.append('text')
                 .attr('x', d.size.width - 10)
                 .attr('y', y)
@@ -386,23 +340,19 @@ function renderDiagram(schema) {
     });
 }
 
-// Update relationship lines when a table is moved
 function updateRelationshipLines(schema, tableId) {
     const g = svg.select('g');
     
-    // Find all relationships involving this table
     const relatedRels = schema.relationships.filter(
         rel => rel.sourceTable === tableId || rel.targetTable === tableId
     );
     
     relatedRels.forEach(rel => {
-        // Find source and target tables
         const sourceTable = schema.tables.find(t => t.id === rel.sourceTable);
         const targetTable = schema.tables.find(t => t.id === rel.targetTable);
         
         if (!sourceTable || !targetTable) return;
         
-        // Update relationship points (simplified - just connecting centers)
         rel.points = [
             {
                 x: sourceTable.position.x + sourceTable.size.width / 2,
@@ -414,7 +364,6 @@ function updateRelationshipLines(schema, tableId) {
             }
         ];
         
-        // Update the visual path
         const line = d3.line()
             .x(d => d.x)
             .y(d => d.y)
@@ -426,7 +375,6 @@ function updateRelationshipLines(schema, tableId) {
     });
 }
 
-// Save table position to the server
 async function saveTablePosition(tableId, x, y) {
     if (!currentSchema) return;
     
@@ -443,28 +391,22 @@ async function saveTablePosition(tableId, x, y) {
     }
 }
 
-// Export diagram as SVG
 function exportSVG() {
     if (!currentSchema) return;
     
-    // Clone the SVG
     const svgCopy = document.getElementById('diagram').cloneNode(true);
     
-    // Get the diagram's bounding box
     const g = svgCopy.querySelector('g');
     const bbox = g.getBBox();
     
-    // Set the SVG dimensions to match the content
     svgCopy.setAttribute('width', bbox.width);
     svgCopy.setAttribute('height', bbox.height);
     svgCopy.setAttribute('viewBox', `${bbox.x} ${bbox.y} ${bbox.width} ${bbox.height}`);
     
-    // Convert SVG to a data URL
     const svgData = new XMLSerializer().serializeToString(svgCopy);
     const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
     const url = URL.createObjectURL(svgBlob);
     
-    // Create a download link
     const link = document.createElement('a');
     link.href = url;
     link.download = `${currentSchema.name || 'diagram'}.svg`;
@@ -474,42 +416,36 @@ function exportSVG() {
     URL.revokeObjectURL(url);
 }
 
-// Export diagram as PNG
 function exportPNG() {
     if (!currentSchema) return;
     
-    // Clone the SVG
     const svgCopy = document.getElementById('diagram').cloneNode(true);
     
-    // Get the diagram's bounding box
     const g = svgCopy.querySelector('g');
     const bbox = g.getBBox();
     
-    // Set the SVG dimensions to match the content
     svgCopy.setAttribute('width', bbox.width);
     svgCopy.setAttribute('height', bbox.height);
     svgCopy.setAttribute('viewBox', `${bbox.x} ${bbox.y} ${bbox.width} ${bbox.height}`);
     
-    // Convert SVG to a data URL
     const svgData = new XMLSerializer().serializeToString(svgCopy);
     const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
     const url = URL.createObjectURL(svgBlob);
     
-    // Create an image from the SVG
     const img = new Image();
     img.onload = function() {
-        // Create a canvas to draw the image
+
         const canvas = document.createElement('canvas');
         canvas.width = bbox.width;
         canvas.height = bbox.height;
         
-        // Draw the image onto the canvas
+
         const ctx = canvas.getContext('2d');
         ctx.fillStyle = 'white';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         ctx.drawImage(img, 0, 0);
         
-        // Convert canvas to PNG and download
+
         const pngUrl = canvas.toDataURL('image/png');
         const link = document.createElement('a');
         link.href = pngUrl;
@@ -520,8 +456,6 @@ function exportPNG() {
     };
     img.src = url;
 }
-
-// Debounce helper function
 function debounce(func, wait) {
     let timeout;
     return function executedFunction(...args) {
@@ -533,8 +467,6 @@ function debounce(func, wait) {
         timeout = setTimeout(later, wait);
     };
 }
-
-// Add styles for the diagram
 const style = document.createElement('style');
 style.textContent = `
     #diagram-container {
@@ -557,6 +489,4 @@ style.textContent = `
     }
 `;
 document.head.appendChild(style);
-
-// Initialize the application when the page loads
 document.addEventListener('DOMContentLoaded', init);
